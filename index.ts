@@ -5,7 +5,7 @@ import { execSync } from "child_process";
 
 const app = express();
 
-app.get("build", (req: Request, res: Response) => {
+app.post("/", (req: Request, res: Response) => {
   // here you do all the continuous integration tasks
   // for example
   // 1st clone your repository
