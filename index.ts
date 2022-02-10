@@ -5,7 +5,7 @@ import { execSync } from "child_process";
 
 const app = express();
 
-app.get("build", (req: Request, res: Response) => {
+app.post("/", (req: Request, res: Response) => {
   // here you do all the continuous integration tasks
   // for example
   // 1st clone your repository
@@ -41,7 +41,6 @@ app.get("build", (req: Request, res: Response) => {
   console.log("done: npx tsc");
 });
 
-// PORT
 var PORT = 80;
 app.listen(PORT, function () {
   console.log(`Server is running on PORT: ${PORT}`);
