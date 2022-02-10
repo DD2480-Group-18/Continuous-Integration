@@ -42,8 +42,7 @@ app.post("/", (req: Request, res: Response) => {
 });
 
 // test comment 123
-asdadss;
-varss PORT = 80;
+const PORT = 80;
 app.listen(PORT, function () {
   console.log(`Server is running on PORT: ${PORT}`);
   return;
