@@ -4,11 +4,11 @@ import express, { Request, Response } from "express";
 import { execSync } from "child_process";
 
 const app = express();
+const PORT = 80;
 
-app.post("/", (req: Request, res: Response) => {
-  // here you do all the continuous integration tasks
-  // for example
-  // 1st clone your repository
+app.post("/run", (req: Request, res: Response) => {
+
+  console.log(JSON.stringify(req.body));
 
   const user = "DD2480-Group-18";
   const repo_name = "Continuous-Integration";
@@ -41,8 +41,6 @@ app.post("/", (req: Request, res: Response) => {
   console.log("done: npx tsc");
 });
 
-var PORT = 80;
 app.listen(PORT, function () {
-  console.log(`Server is running on PORT: ${PORT}`);
-  return;
+  console.log(`CI Server is running on PORT: ${PORT}`);
 });
