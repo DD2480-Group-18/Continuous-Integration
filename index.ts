@@ -8,6 +8,7 @@ const PORT = 80;
 
 app.post("/run", (req: Request, res: Response) => {
 
+  console.log(req);
   console.log(JSON.stringify(req.body));
 
   const user = "DD2480-Group-18";
