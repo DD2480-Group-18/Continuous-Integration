@@ -1,15 +1,16 @@
 // dependencies
 import path from "path";
 import express, { Request, Response } from "express";
+import bodyParser from "body-parser"
 import { execSync } from "child_process";
 
 const app = express();
+app.use(bodyParser.json())
 const PORT = 80;
 
 app.post("/run", (req: Request, res: Response) => {
 
-  console.log(req);
-  console.log(JSON.stringify(req.body));
+  console.log("ha", req.body);
 
   const user = "DD2480-Group-18";
   const repo_name = "Continuous-Integration";
