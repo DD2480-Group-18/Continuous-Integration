@@ -30,9 +30,13 @@ app.post("/run", async (req: Request, res: Response) => {
   const commit_check_url = `https://github.com/repos/${ownerName}/${repositoryName}/check-runs`;
   const commit_check_name = "code-coverage";
 
-  const set_in_progress_body: CheckRunBody = {
+  const in_progress_body: CheckRunBody = {
     name: commit_check_name,
     head_sha: branchRef,
+    output: {
+      title: "Code coverage",
+      summary: "CI build using CIJOE",
+    },
   };
   axios
     .post(commit_check_url, {
@@ -40,7 +44,7 @@ app.post("/run", async (req: Request, res: Response) => {
       headers: {
         "content-type": "application/vnd.github.v3+json",
       },
-      body: JSON.stringify(set_in_progress_body),
+      body: JSON.stringify(in_progress_body),
     })
     .then((res) => console.log(res.data));
 
@@ -88,7 +92,7 @@ app.post("/run", async (req: Request, res: Response) => {
   executeAndLogCommand(rmCommand, CMD_EXEC_OPTIONS);
 
   // success
-  const set_success_body: CheckRunBody = {
+  const success_body: CheckRunBody = {
     name: commit_check_name,
     head_sha: branchRef,
     status: "completed",
@@ -100,7 +104,7 @@ app.post("/run", async (req: Request, res: Response) => {
       headers: {
         "content-type": "application/vnd.github.v3+json",
       },
-      body: JSON.stringify(set_success_body),
+      body: JSON.stringify(success_body),
     })
     .then((res) => console.log(res.data));
 });
