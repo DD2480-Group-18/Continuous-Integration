@@ -1,0 +1,13 @@
+{
+  "compile": [
+    "echo 'compile foo'",
+    "echo 'compile bar'"
+  ],
+  "dependencies": [
+    "echo 'dependency foo'",
+    "echo 'dependency bar'"
+  ],
+  "test": [
+    "echo 'test foo'"
+  ]
+}
