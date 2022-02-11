@@ -1,44 +1,53 @@
-// dependencies
-import path from "path";
 import express, { Request, Response } from "express";
-import { execSync } from "child_process";
+import bodyParser from "body-parser"
+import { CIConfig, WebhookBody } from "./types";
+import { executeAndLogCommand } from "./tools";
+import { readFile } from 'fs/promises';
 
 const app = express();
+app.use(bodyParser.json())
+
 const PORT = 80;
+const CMD_EXEC_OPTIONS = [0, 1, 2]
+const JOB_FILE_DIR = "ci-jobs"
 
-app.post("/run", (req: Request, res: Response) => {
+app.post("/run", async (req: Request, res: Response) => {
+  const {
+    ssh_url,
+    name: repositoryName,
+    owner: {
+      name: ownerName
+    },
+    ref: branchRef
+  }: WebhookBody = req.body
+  
+  // extract the clean branch name of the commit
+  const branch = branchRef.substring("refs/heads/".length)
 
-  console.log(JSON.stringify(req.body));
+  const jobDirectory = `${JOB_FILE_DIR}/${ownerName}-${repositoryName}`
 
-  const user = "DD2480-Group-18";
-  const repo_name = "Continuous-Integration";
-  const branch = "master";
+  // create and enter parent and job directory (if not existing)
+  const createDirsCommand = `mkdir -p ${jobDirectory} && cd ${jobDirectory}`
+  executeAndLogCommand(createDirsCommand, CMD_EXEC_OPTIONS);
 
-  execSync(
-    `git clone git@github.com:${user}/${repo_name}.git --branch ${branch}`,
-    {
-      stdio: [0, 1, 2], // we need this so node will print the command output
-      cwd: path.resolve(__dirname, ""), // path to where you want to save the file
-    }
-  );
+  // clone repository into current directory
+  const cloneCommand = `git clone ${ssh_url} --branch ${branch} .`
+  executeAndLogCommand(cloneCommand, CMD_EXEC_OPTIONS);
+  
+  // read .ci.json configuration file and run the user-defined steps
+  const ciConfigFileBuffer = await readFile(jobDirectory);
+  if (!ciConfigFileBuffer) {
+    res.status(500);
+    return;
+  }
+  const { dependencies, compile, test }: CIConfig = JSON.parse(ciConfigFileBuffer.toString())
 
-  console.log(
-    `done: git clone git@github.com:${user}/${repo_name}.git --branch ${branch}`
-  );
-
-  execSync(`cd ${repo_name}`, {
-    stdio: [0, 1, 2], // we need this so node will print the command output
-    cwd: path.resolve(__dirname, ""), // path to where you want to save the file
-  });
-
-  console.log(`done: cd ${repo_name}`);
-
-  execSync("npx tsc", {
-    stdio: [0, 1, 2], // we need this so node will print the command output
-    cwd: path.resolve(__dirname, ""), // path to where you want to save the file
-  });
-
-  console.log("done: npx tsc");
+  // run dependency installation steps
+  dependencies.forEach((cmd) => executeAndLogCommand(cmd, CMD_EXEC_OPTIONS))
+  // run compilation steps
+  compile.forEach((cmd) => executeAndLogCommand(cmd, CMD_EXEC_OPTIONS))
+  // run testing steps
+  test.forEach((cmd) => executeAndLogCommand(cmd, CMD_EXEC_OPTIONS))
 });
 
 app.listen(PORT, function () {
