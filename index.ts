@@ -1,11 +1,6 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
-import {
-  CheckRunBody,
-  CIConfig,
-  CommitCheckOutput,
-  WebhookBody,
-} from "./types";
+import { CheckRunBody, CIConfig, WebhookBody } from "./types";
 import { executeAndLogCommand } from "./tools";
 import { readFile } from "fs/promises";
 import path = require("path");
@@ -32,18 +27,10 @@ app.post("/run", async (req: Request, res: Response) => {
   }: WebhookBody = req.body;
 
   const commit_check_url = `https://github.com/repos/${ownerName}/${repositoryName}/statuses/${branchRef}`;
-  const commit_check_name = "code-coverage";
-  const output: CommitCheckOutput = {
-    title: "Code Coverage",
-    summary: "CI build using CIJOE",
-  };
 
   // Set as in-progress
   const in_progress_body: CheckRunBody = {
-    name: commit_check_name,
-    head_sha: branchRef,
-    status: "in_progress",
-    output,
+    state: "pending",
   };
   await axios
     .post(commit_check_url, {
@@ -100,11 +87,7 @@ app.post("/run", async (req: Request, res: Response) => {
 
   // success
   const success_body: CheckRunBody = {
-    name: commit_check_name,
-    head_sha: branchRef,
-    status: "completed",
-    conclusion: "success",
-    output,
+    state: "success",
   };
   await axios.post(commit_check_url, {
     method: "POST",
