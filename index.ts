@@ -14,7 +14,7 @@ import axios from "axios";
 const app = express();
 app.use(bodyParser.json());
 
-// Configs
+// config
 const PORT = 80;
 const CMD_EXEC_OPTIONS = [0, 1, 2];
 const JOB_FILE_DIR = "ci-jobs";
