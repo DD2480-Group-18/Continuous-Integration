@@ -1,13 +1,17 @@
-import { createJobDirectory, cloneRepository, getRepositoryConfig } from './pkg/ci';
-import path = require("path");
+import {
+  createJobDirectory,
+  cloneRepository,
+  getRepositoryConfig,
+} from "./pkg/ci";
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
-import { readFile } from "fs/promises";
-import { CIConfig, WebhookBody } from "./types/types";
-import { executeAndLogCommand } from "./pkg/io";
-import { setSuccessCommitStatus } from './pkg/commit_check';
-import { getCommitStatusUpdateURL, setPendingCommitStatus } from "./pkg/commit_check";
-import { PORT, CMD_EXEC_OPTIONS, JOB_FILE_DIR, CI_FILE_NAME } from "./constants/constants"
+import { WebhookBody } from "./types/types";
+import { setSuccessCommitStatus } from "./pkg/commit_check";
+import {
+  getCommitStatusUpdateURL,
+  setPendingCommitStatus,
+} from "./pkg/commit_check";
+import { PORT, JOB_FILE_DIR } from "./constants/constants";
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,7 +27,11 @@ app.post("/run", async (req: Request, res: Response) => {
     ref: branchRef,
   }: WebhookBody = req.body;
 
-  const commitStatusURL = getCommitStatusUpdateURL(ownerName, repositoryName, branchRef);
+  const commitStatusURL = getCommitStatusUpdateURL(
+    ownerName,
+    repositoryName,
+    commitHash
+  );
   const jobDirectory = `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`;
 
   // Set CI commit status to "pending"
@@ -56,7 +64,7 @@ app.post("/run", async (req: Request, res: Response) => {
 
   // Set CI commit status to "success"
   await setSuccessCommitStatus(commitStatusURL);
-;});
+});
 
 app.listen(PORT, function () {
   console.log(`CI Server is running on PORT: ${PORT}`);
