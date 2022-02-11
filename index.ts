@@ -45,13 +45,15 @@ app.post("/run", async (req: Request, res: Response) => {
     status: "in_progress",
     output,
   };
-  axios.post(commit_check_url, {
-    method: "POST",
-    headers: {
-      "content-type": "application/vnd.github.v3+json",
-    },
-    body: JSON.stringify(in_progress_body),
-  });
+  await axios
+    .post(commit_check_url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify(in_progress_body),
+    })
+    .then((res) => console.log(res.data));
 
   // extract the clean branch name of the commit
   const branch = branchRef.substring("refs/heads/".length);
