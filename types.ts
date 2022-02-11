@@ -1,9 +1,12 @@
 export type WebhookBody = {
-  ssh_url: string,
-  name: string,
-  owner: {
-    name: string
+  repository: {
+    ssh_url: string,
+    name: string,
+    owner: {
+      name: string
+    },
   },
+  after: string,
   ref: string
 }
 
