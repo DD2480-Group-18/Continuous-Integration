@@ -116,7 +116,7 @@ app.post("/run", async (req: Request, res: Response) => {
       })
       .then((res) => console.log(res.data));
   } catch (err) {
-    // success
+    // failure
     const failure_body: CheckRunBody = {
       name: commit_check_name,
       head_sha: branchRef,
