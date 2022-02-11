@@ -2,8 +2,9 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import { CheckRunBody, CIConfig, WebhookBody } from "./types";
 import { executeAndLogCommand } from "./tools";
-import { readFile, rmdir } from "fs/promises";
+import { readFile } from "fs/promises";
 import path = require("path");
+import axios from "axios";
 
 const app = express();
 app.use(bodyParser.json());
@@ -33,15 +34,15 @@ app.post("/run", async (req: Request, res: Response) => {
     name: commit_check_name,
     head_sha: branchRef,
   };
-  fetch(commit_check_url, {
-    method: "POST",
-    headers: {
-      "content-type": "application/vnd.github.v3+json",
-    },
-    body: JSON.stringify(set_in_progress_body),
-  })
-    .then((res) => res.json())
-    .then((data) => console.log(data));
+  axios
+    .post(commit_check_url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify(set_in_progress_body),
+    })
+    .then((res) => console.log(res.data));
 
   // extract the clean branch name of the commit
   const branch = branchRef.substring("refs/heads/".length);
@@ -93,15 +94,15 @@ app.post("/run", async (req: Request, res: Response) => {
     status: "completed",
     conclusion: "success",
   };
-  await fetch(commit_check_url, {
-    method: "POST",
-    headers: {
-      "content-type": "application/vnd.github.v3+json",
-    },
-    body: JSON.stringify(set_success_body),
-  })
-    .then((res) => res.json())
-    .then((data) => console.log(data));
+  await axios
+    .post(commit_check_url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify(set_success_body),
+    })
+    .then((res) => console.log(res.data));
 });
 
 app.listen(PORT, function () {
