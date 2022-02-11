@@ -60,7 +60,8 @@ const setCommitStatus = async (commitStatusURL: string, body: CommitStatusUpdate
         "Authorization": `token ${process.env.GITHUB_CI_ACCESS_TOKEN}`,
         "Content-Type": "application/vnd.github.v3+json",
       },
-      body: body
+      body: body,
+      validateStatus: () => true,
     })
   return req.status === HttpStatusCode.CREATED
 }
