@@ -8,6 +8,7 @@ import path = require("path");
 const app = express();
 app.use(bodyParser.json());
 
+// Config
 const PORT = 80;
 const CMD_EXEC_OPTIONS = [0, 1, 2];
 const JOB_FILE_DIR = "ci-jobs";
