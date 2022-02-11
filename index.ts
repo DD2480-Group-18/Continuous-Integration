@@ -31,7 +31,7 @@ app.post("/run", async (req: Request, res: Response) => {
     ref: branchRef,
   }: WebhookBody = req.body;
 
-  const commit_check_url = `https://github.com/repos/${ownerName}/${repositoryName}/check-runs`;
+  const commit_check_url = `https://github.com/repos/${ownerName}/${repositoryName}/statuses/${branchRef}`;
   const commit_check_name = "code-coverage";
   const output: CommitCheckOutput = {
     title: "Code coverage",
