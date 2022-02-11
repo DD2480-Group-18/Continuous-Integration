@@ -45,15 +45,13 @@ app.post("/run", async (req: Request, res: Response) => {
       head_sha: branchRef,
       output,
     };
-    axios
-      .post(commit_check_url, {
-        method: "POST",
-        headers: {
-          "content-type": "application/vnd.github.v3+json",
-        },
-        body: JSON.stringify(in_progress_body),
-      })
-      .then((res) => console.log(res.data));
+    axios.post(commit_check_url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify(in_progress_body),
+    });
 
     // extract the clean branch name of the commit
     const branch = branchRef.substring("refs/heads/".length);
@@ -106,16 +104,16 @@ app.post("/run", async (req: Request, res: Response) => {
       conclusion: "success",
       output,
     };
-    await axios
-      .post(commit_check_url, {
-        method: "POST",
-        headers: {
-          "content-type": "application/vnd.github.v3+json",
-        },
-        body: JSON.stringify(success_body),
-      })
-      .then((res) => console.log(res.data));
+    await axios.post(commit_check_url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify(success_body),
+    });
   } catch (err) {
+    console.error(err);
+
     // failure
     const failure_body: CheckRunBody = {
       name: commit_check_name,
@@ -124,15 +122,13 @@ app.post("/run", async (req: Request, res: Response) => {
       conclusion: "failure",
       output,
     };
-    await axios
-      .post(commit_check_url, {
-        method: "POST",
-        headers: {
-          "content-type": "application/vnd.github.v3+json",
-        },
-        body: JSON.stringify(failure_body),
-      })
-      .then((res) => console.log(res.data));
+    await axios.post(commit_check_url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify(failure_body),
+    });
   }
 });
 
