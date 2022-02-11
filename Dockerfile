@@ -1,8 +1,8 @@
-FROM ubuntu
+FROM node
 
 ENV user=DD2480-Group-18
 ENV repo_name=Continuous-Integration
-ENV branch=citest
+ENV branch=master
 
 # Update aptitude with new repo
 RUN apt-get update
@@ -20,8 +20,16 @@ RUN chmod -R 700 /root/.ssh/id_rsa
 
 # Create known_hosts
 RUN touch /root/.ssh/known_hosts
-# Add bitbuckets key
+# Add github key
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Clone the conf files into the docker container
-RUN git clone git@github.com:${user}/${repo_name}.git --branch ${branch}
+RUN git clone git@github.com:${user}/${repo_name}.git /app --branch ${branch}
+
+WORKDIR /app
+
+# Install dependencies
+RUN ["npm", "install"]
+
+# Build
+RUN ["npm", "run", "build"]

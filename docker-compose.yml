@@ -4,3 +4,11 @@ services:
   ci:
     build: .
     tty: true
+    ports: 
+      - 80:80
+    command: ["npm", "start"]
+  test:
+    build: .
+    ports: 
+      - 80:80
+    command: ["npm", "test"]
