@@ -26,7 +26,7 @@ app.post("/run", async (req: Request, res: Response) => {
   const commitStatusURL = getCommitStatusUpdateURL(ownerName, repositoryName, branchRef);
   const jobDirectory = `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`;
 
-  // Set CI status as pending
+  // Set CI commit status to "pending"
   await setPendingCommitStatus(commitStatusURL);
 
   createJobDirectory(jobDirectory);
@@ -35,6 +35,7 @@ app.post("/run", async (req: Request, res: Response) => {
   // read .ci.json configuration file and run the user-defined steps
   const ciConfig = await getRepositoryConfig(jobDirectory);
 
+  /*
   // run dependency installation steps
   dependencies.forEach((cmd) =>
     executeAndLogCommand(cmd, CMD_EXEC_OPTIONS, absoluteJobDirectory)
@@ -51,7 +52,9 @@ app.post("/run", async (req: Request, res: Response) => {
   // cleanup build files
   const rmCommand = `rm -rf "${absoluteJobDirectory}"`;
   executeAndLogCommand(rmCommand, CMD_EXEC_OPTIONS);
+  */
 
+  // Set CI commit status to "success"
   await setSuccessCommitStatus(commitStatusURL);
 ;});
 

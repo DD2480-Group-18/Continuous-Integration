@@ -30,20 +30,20 @@ export const setPendingCommitStatus = async (commitStatusURL: string) => {
  * 
  * @param commitStatusURL the URL of the GitHub status page
  */
- export const setSuccessCommitStatus = async (commitStatusURL: string) => {
+export const setSuccessCommitStatus = async (commitStatusURL: string) => {
   const successBody: CommitStatusUpdate = { state: "success", context: "ci-joe" };
   return setCommitStatus(commitStatusURL, successBody)
- }
+}
 
- /**
+/**
  * Sets the GitHub commit status to "failure"
  * 
  * @param commitStatusURL the URL of the GitHub status page
  */
-  export const setFailureCommitStatus = async (commitStatusURL: string) => {
-    const failureBody: CommitStatusUpdate = { state: "failure", context: "ci-joe" };
-    return setCommitStatus(commitStatusURL, failureBody)
-  }
+export const setFailureCommitStatus = async (commitStatusURL: string) => {
+  const failureBody: CommitStatusUpdate = { state: "failure", context: "ci-joe" };
+  return setCommitStatus(commitStatusURL, failureBody)
+}
 
 /**
  * Sets the GitHub commit status using a POST request
