@@ -2,7 +2,7 @@
   "name": "continuous-integration",
   "version": "1.0.0",
   "description": "CI Server",
-  "main": "src/index.ts",
+  "main": "src/index.js",
   "scripts": {
     "build": "tsc",
     "watch": "npx tsc -w",
