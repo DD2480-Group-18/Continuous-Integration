@@ -2,3 +2,4 @@ dist
 node_modules
 example-payload.json
 .DS_Store
+.env

@@ -16,7 +16,7 @@ export type CIConfig = {
   test: string[];
 };
 
-export type CheckRunBody = {
+export type CommitStatusUpdate = {
   state: "error" | "failure" | "pending" | "success";
   description?: string;
   target_url?: string;
