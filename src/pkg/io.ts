@@ -1,4 +1,8 @@
-import { execSync, SpawnSyncReturns } from "child_process";
+import {
+  execSync,
+  ExecSyncOptionsWithBufferEncoding,
+  SpawnSyncReturns,
+} from "child_process";
 import path from "path";
 
 // TODO: add logging to stdout as well as
@@ -9,15 +13,19 @@ export const executeAndLogCommand = (
 ) => {
   let succeeded = true;
   try {
-    execSync(command, {
+    let execOptions: ExecSyncOptionsWithBufferEncoding = {
       stdio: commandOptions,
-      cwd,
-    });
+    };
+    if (cwd.length > 0) {
+      execOptions = { ...execOptions, cwd };
+    }
+    execSync(command, execOptions);
     console.log(`done: ${command}`);
   } catch (err) {
     const error = err as SpawnSyncReturns<string | Buffer>;
     succeeded = false;
     console.log(`error: ${error.stdout}`);
+    console.log(err);
   }
   return succeeded;
 };
