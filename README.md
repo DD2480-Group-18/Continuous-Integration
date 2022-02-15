@@ -35,7 +35,7 @@ Second example:
     "npm install"
   ],
   "compile": ["npm run build"],
-  "test": ["npm test"]
+  "test": ["npm test"] 
 }
 ```
 
