@@ -33,7 +33,7 @@ Second example:
     "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash", // install NVM
     "nvm install --lts",
     "npm install"
-  ],
+  ], 
   "compile": ["npm run build"],
   "test": ["npm test"] 
 }
