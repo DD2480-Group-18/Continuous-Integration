@@ -1,31 +1,31 @@
-import {
-  execSync,
-  ExecSyncOptionsWithBufferEncoding,
-  SpawnSyncReturns,
-} from "child_process";
-import path from "path";
+import { exec, ExecSyncOptionsWithStringEncoding } from "child_process";
 
-// TODO: add logging to stdout as well as
-export const executeAndLogCommand = (
-  command: string,
-  commandOptions: number[],
-  cwd = ""
+/**
+ * Executes a given console command and logs the results
+ *
+ * @param cmd the command to execute
+ * @param options set options like encoding, working dir, timeout, etc.
+ * @param logger a logger for logging the results, defaults to console
+ * @returns true if the request successfully created a commit status
+ */
+export const execute = async (
+  cmd: string,
+  options: ExecSyncOptionsWithStringEncoding,
+  logger = console
 ) => {
-  let succeeded = true;
-  try {
-    let execOptions: ExecSyncOptionsWithBufferEncoding = {
-      stdio: commandOptions,
-    };
-    if (cwd.length > 0) {
-      execOptions = { ...execOptions, cwd };
+  const child = exec(cmd, options, (err, stdout, stderr) => {
+    if (err) {
+      logger.error(`error: ${err}`);
+      throw err;
     }
-    execSync(command, execOptions);
-    console.log(`done: ${command}`);
-  } catch (err) {
-    const error = err as SpawnSyncReturns<string | Buffer>;
-    succeeded = false;
-    console.log(`error: ${error.stdout}`);
-    console.log(err);
-  }
-  return succeeded;
+    logger.log(`stdout: ${stdout}`);
+    logger.log(`stderr: ${stderr}`);
+  });
+
+  await new Promise((resolve) => {
+    child.on("close", () => {
+      console.log(`done: ${cmd}`);
+      return resolve;
+    });
+  });
 };
