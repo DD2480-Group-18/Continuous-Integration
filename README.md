@@ -46,7 +46,7 @@ Create a webhook in your GitHub repository that connects to the generated ngrok 
 Run the CI server with `npm run build && npm start`.
 
 Pushing changes onto remote from a local branch will trigger the webhook, which will send a request to the CI server. The CI server will pull the changes from that branch, build the latest revision, and try to run the tests.
-
+ 
 1.4 Statement of contributions
 
 Adam: Everything docker-related, README.md, pair programming with Zino.
