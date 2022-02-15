@@ -1,3 +1,5 @@
+import path from "path";
+import { getRootDirectory } from "./pkg/file";
 import {
   createJobDirectory,
   cloneRepository,
@@ -13,7 +15,10 @@ import {
 } from "./pkg/commit_check";
 import { PORT, JOB_FILE_DIR } from "./constants/constants";
 
+// initialize app
 const app = express();
+
+// use bodyParser middleware to parse JSON
 app.use(bodyParser.json());
 
 app.post("/run", async (req: Request, res: Response) => {
@@ -32,7 +37,10 @@ app.post("/run", async (req: Request, res: Response) => {
     repositoryName,
     commitHash
   );
-  const jobDirectory = `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`;
+  const jobDirectory = path.join(
+    getRootDirectory(),
+    `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
+  );
 
   // Set CI commit status to "pending"
   await setPendingCommitStatus(commitStatusURL);
