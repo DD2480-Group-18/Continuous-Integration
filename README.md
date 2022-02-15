@@ -7,7 +7,7 @@ CIJOE is a state-of-the-art CI build server for GitHub. Using the GitHub WebHook
 1.2 How it works
   
 1.3 How to use it 
-
+ 
 Create a CI configuration file `.ci.json`. 
   
 Example:
