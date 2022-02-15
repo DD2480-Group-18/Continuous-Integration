@@ -22,7 +22,7 @@ Example:
 }
 ```
 
-Second example:
+Second example: 
 
 ```json
 // .ci.json 
