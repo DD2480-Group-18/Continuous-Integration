@@ -50,5 +50,5 @@ Pushing changes onto remote from a local branch will trigger the webhook, which 
 1.4 Statement of contributions
 
 Adam: Everything docker-related, README.md, pair programming with Zino.
-Zino: Most of the CI server implementation.
+Zino: Most of the CI server implementation. 
  
