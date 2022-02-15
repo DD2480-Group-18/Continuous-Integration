@@ -9,6 +9,20 @@ Using the GitHub WebHooks integrations CIJOE makes sure that all code published 
 
 ## 1.3 How to use it
 
+### Setup your GitHub CI token
+
+For CI-JOE to have access to your repository, you need to setup the environment variable `GITHUB_CI_ACCESS_TOKEN` in .env or run the executable with the same environment variable set.
+The access token only needs the `repo:status` permission. 
+
+You can create and retrieve your CI token [here](https://github.com/settings/tokens).
+
+##### Create a `.env` file in the top project directory with the following content:
+```
+// .env
+
+GITHUB_CI_ACCESS_TOKEN=your-github-access-token
+```
+
 ### Create a CI configuration file `.ci.json`.
 
 This configuration file contains all of the CI steps that will be run by CI-JOE.
@@ -58,4 +72,5 @@ These steps should be related to testing of the project.
 ## 1.4 Statement of contributions
 
 Adam: Everything docker-related, README.md, pair programming with Zino.
+
 Zino: Most of the CI server implementation.
