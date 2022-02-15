@@ -11,7 +11,7 @@ export const executeAndLogCommand = (
   try {
     execSync(command, {
       stdio: commandOptions,
-      cwd: path.resolve(__dirname, cwd),
+      cwd,
     });
     console.log(`done: ${command}`);
   } catch (err) {
