@@ -25,7 +25,7 @@ Example:
 Second example:
 
 ```json
-// .ci.json
+// .ci.json 
 
 {
   "dependencies": [
