@@ -1,5 +1,5 @@
 import { execSync, SpawnSyncReturns } from "child_process";
-import path = require("path");
+import path from "path";
 
 // TODO: add logging to stdout as well as
 export const executeAndLogCommand = (

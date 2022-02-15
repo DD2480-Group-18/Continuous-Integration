@@ -82,5 +82,5 @@ const setCommitStatus = async (
         `Commit status update request failed with error code ${response?.status}`
       );
     });
-  return req && req.status === HttpStatusCode.CREATED;
+  return Boolean(req && req.status === HttpStatusCode.CREATED);
 };
