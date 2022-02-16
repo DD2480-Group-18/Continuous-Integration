@@ -8,7 +8,7 @@ import { EOL } from "os";
  * @param logger a Console logger instance to log to
  */
 export const statusLog = (message: string, symbol: string, logger: Console) => {
-  logger.log(`--- ${symbol} ${message} ${symbol} ---`, logger);
+  logger.log(`--- ${symbol} ${message} ${symbol} ---`);
 };
 
 /**
