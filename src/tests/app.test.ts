@@ -1,13 +1,14 @@
 import axios from "axios";
 import app from "../app";
 
-jest.setTimeout(10 * 1000);
-
 beforeAll(() => {
   app.listen(3001);
 });
 
+jest.setTimeout(10 * 1000);
+
 test("mock", async () => {
+  // @ts-ignore
   const res = await axios.post("http://localhost:3001/run", {
     repository: {
       ssh_url: "git@github.com:DD2480-Group-18/Continuous-Integration.git",
@@ -27,5 +28,5 @@ test("mock", async () => {
     ref: "refs/heads/t/dependencies-working",
   });
 
-  expect(res.status).toBe(200);
+  expect(res?.status).toBe(200);
 });
