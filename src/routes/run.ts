@@ -5,9 +5,10 @@ import {
   createJobMetaData,
 } from "../pkg/ci";
 import { Request, Response } from "express";
-import { WebhookBody } from "../types/types";
+import { JobMetadata, WebhookBody } from "../types/types";
 import {
   getCommitStatusUpdateURL,
+  setFailureCommitStatus,
   setPendingCommitStatus,
   setSuccessCommitStatus,
 } from "../pkg/commit_check";
@@ -50,6 +51,111 @@ export const runCI = async (req: Request, res: Response) => {
   );
   await setPendingCommitStatus(commitStatusURL);
 
+  // setup logging
+  let logger;
+  try {
+    logger = await setupLogging({
+      ownerName,
+      repositoryName,
+      commitHash,
+      username,
+      commitURL,
+      commitTimestamp,
+    });
+  } catch (e) {
+    await setFailureCommitStatus(commitStatusURL);
+    return;
+  }
+
+  const jobDirectory = path.join(
+    getRootDirectory(),
+    `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
+  );
+
+  try {
+    // clone the repository
+    await setupTargetRepository({
+      jobDirectory,
+      ownerName,
+      repositoryName,
+      commitHash,
+      sshURL,
+      branchRef,
+      logger,
+    });
+
+    // read .ci.json configuration file and run the user-defined steps
+    const { dependencies, compile, test } = await getRepositoryConfig(
+      jobDirectory
+    );
+    const ciStartTime = performance.now();
+
+    // run dependency installation steps
+    await runCISteps({
+      steps: dependencies,
+      startTime: ciStartTime,
+      jobDirectory,
+      message: "INSTALLING DEPENDENCIES",
+      symbol: "📦",
+      logger,
+    });
+
+    // run compilation steps
+    const compilationStartTime = performance.now();
+    await runCISteps({
+      steps: compile,
+      startTime: compilationStartTime,
+      jobDirectory,
+      message: "COMPILING PROJECT",
+      symbol: "⚙️",
+      logger,
+    });
+
+    // run testing steps
+    const testingStartTime = performance.now();
+    await runCISteps({
+      steps: test,
+      startTime: testingStartTime,
+      jobDirectory,
+      message: "RUNNING TESTS",
+      symbol: "🧪",
+      logger,
+    });
+
+    // cleanup build files
+    await execute(`rm -rf "${jobDirectory}"`);
+
+    // log success status
+    finishedStatusLog("CI completed successfully", "✅", ciStartTime, logger);
+
+    // set GitHub CI commit status to "success"
+    await setSuccessCommitStatus(commitStatusURL);
+  } catch (e) {
+    logger.log("CI-JOE failed: ", e);
+    await setFailureCommitStatus(commitStatusURL);
+  }
+};
+
+type RepositoryInfo = {
+  ownerName: string;
+  repositoryName: string;
+  commitHash: string;
+};
+
+/**
+ * Sets up logging infrastructure and returns a logger
+ *
+ * @param properties required to setup logging
+ * @returns a logger that writes to a log file
+ */
+const setupLogging = async ({
+  ownerName,
+  repositoryName,
+  commitHash,
+  username,
+  commitURL,
+  commitTimestamp,
+}: RepositoryInfo & Omit<JobMetadata, "jobTimestamp">) => {
   // create a logger that logs to the job logging directory
   const loggingDirectory = path.join(
     getRootDirectory(),
@@ -73,13 +179,30 @@ export const runCI = async (req: Request, res: Response) => {
     jobTimestamp,
   });
 
-  // clone repository
+  return logger;
+};
+
+/**
+ * Sets up the folder structure for the CI job and clones the repository into it
+ *
+ * @param properties required to clone the target repository
+ */
+const setupTargetRepository = async ({
+  jobDirectory,
+  ownerName,
+  repositoryName,
+  commitHash,
+  sshURL,
+  branchRef,
+  logger,
+}: RepositoryInfo & {
+  jobDirectory: string;
+  sshURL: string;
+  branchRef: string;
+  logger: Console;
+}) => {
   const cloningStartTime = performance.now();
   statusLog("CLONING REPOSITORY", "⬇️", logger);
-  const jobDirectory = path.join(
-    getRootDirectory(),
-    `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
-  );
   await createDirectory(jobDirectory);
   await cloneRepository(
     sshURL,
@@ -87,58 +210,35 @@ export const runCI = async (req: Request, res: Response) => {
     `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
   );
   finishedStatusLog("DONE CLONING REPOSITORY", "✅", cloningStartTime, logger);
+};
 
-  // read .ci.json configuration file and run the user-defined steps
-  const { dependencies, compile, test } = await getRepositoryConfig(
-    jobDirectory
-  );
-
-  const ciStartTime = performance.now();
-
+/**
+ * Runs the CI steps in "steps" and logs status updates
+ *
+ * @param properties required to run the CI steps
+ */
+const runCISteps = async ({
+  steps,
+  startTime,
+  jobDirectory,
+  message,
+  symbol,
+  logger,
+}: {
+  message: string;
+  symbol: string;
+  logger: Console;
+  steps: string[];
+  jobDirectory: string;
+  startTime: number;
+}) => {
   // run dependency installation steps
-  statusLog("INSTALLING DEPENDENCIES", "📦", logger);
-  for (const cmd of dependencies) {
+  statusLog(message, symbol, logger);
+  for (const cmd of steps) {
     await execute(cmd, logger, {
       encoding: "utf8",
       cwd: jobDirectory,
     });
   }
-  finishedStatusLog("DONE INSTALLING DEPENDENCIES", "✅", ciStartTime, logger);
-
-  // run compilation steps
-  let compileStartTime = performance.now();
-  statusLog("COMPILING PROJECT", "⚙️", logger);
-  for (const cmd of compile) {
-    await execute(cmd, logger, {
-      encoding: "utf8",
-      cwd: jobDirectory,
-    });
-  }
-  finishedStatusLog("DONE COMPILING PROJECT", "✅", compileStartTime, logger);
-
-  // run testing steps
-  let testingStartTime = performance.now();
-  statusLog("RUNNING TESTS", "🧪", logger);
-  for (const cmd of test) {
-    await execute(cmd, logger, {
-      encoding: "utf8",
-      cwd: jobDirectory,
-    });
-  }
-  finishedStatusLog("DONE RUNNING TESTS", "✅", testingStartTime, logger);
-
-  // cleanup build files
-  const rmCommand = `rm -rf "${jobDirectory}"`;
-  await execute(rmCommand);
-
-  // log success status
-  finishedStatusLog(
-    "All CI steps completed successfully",
-    "✅",
-    ciStartTime,
-    logger
-  );
-
-  // set GitHub CI commit status to "success"
-  await setSuccessCommitStatus(commitStatusURL);
+  finishedStatusLog(`DONE ${message}`, "✅", startTime, logger);
 };
