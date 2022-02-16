@@ -31,7 +31,8 @@ test("createJobDirectory creates the folder structure on the filesystem", async 
     exists = false;
   }
 
-  expect(exists).toBe(true);
+  // true changed to false to break tests for t/testing-broken
+  expect(exists).toBe(false);
 
   // clear test directory
   fs.rmSync(jobDirectory, { recursive: true, force: true });
