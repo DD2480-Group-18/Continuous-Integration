@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { JOB_FILE_DIR } from "../constants/constants";
 import { cloneRepository, createDirectory, getRepositoryConfig } from "../pkg/ci";
-import { error } from "console";
+
 
 test("createJobDirectory creates the folder structure on the filesystem", async () => {
   const ownerName = "test-owner";
@@ -72,7 +72,7 @@ test("cloneRepository clones repositories to the target directory", async () => 
 });
 
 //RepositoryConfig test
-test("..."), async () => {
+test("Respositry configuration test"), async () => {
   const ownerName = "DD2480-Group-18";
   const repositoryName = "Continuous-Integration";
   const commitHash = "abc123";
@@ -93,8 +93,7 @@ test("..."), async () => {
 };
 const data = JSON.stringify(obj);
 
-  fs.writeFile(path.join(jobDirectory, "test.config.json"), data,error);
-  
+fs.writeFile(path.join(jobDirectory, "test.config.json"), "UTF8",console.error); 
   const conf = getRepositoryConfig(jobDirectory, "test.config.json");
   
   expect(JSON.parse(conf.toString()).dependency).toBe("cmd1");
