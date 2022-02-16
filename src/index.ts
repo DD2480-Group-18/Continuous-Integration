@@ -1,3 +1,4 @@
+import { showJob } from "./routes/job";
 import { getRootDirectory } from "./pkg/file";
 import express from "express";
 import bodyParser from "body-parser";
@@ -21,6 +22,9 @@ app.post("/run", runCI);
 
 // show jobs endpoint
 app.get("/list", listJobs);
+
+// show single job endpoint
+app.get("/job/:organization/:repository/:sha", showJob);
 
 app.listen(PORT, function () {
   console.log(`CI Server is running on PORT: ${PORT}`);

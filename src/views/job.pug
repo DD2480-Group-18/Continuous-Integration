@@ -1,0 +1,14 @@
+html
+  head
+    title CI-JOE Job | #{owner}/#{repository} #{sha}
+  body
+    h1 CI-JOE Job 
+    h2 #{owner}/#{repository} (#{sha})
+    p Commiter: #{metadata.username}
+    p Commited at: #{metadata.commitTimestamp}
+    p CI job started at: #{metadata.jobTimestamp}
+    a(href=metadata.commitURL) 
+      p commit URL
+    
+    h3 Output log
+    pre #{outputLog}

@@ -11,7 +11,12 @@ import {
   setPendingCommitStatus,
   setSuccessCommitStatus,
 } from "../pkg/commit_check";
-import { JOB_FILE_DIR, RESULTS_FILE_DIR } from "../constants/constants";
+import {
+  JOB_FILE_DIR,
+  OUTPUT_LOG_FILE_NAME,
+  ERROR_LOG_FILE_NAME,
+  RESULTS_FILE_DIR,
+} from "../constants/constants";
 import fs from "fs";
 import { execute } from "../pkg/io";
 import { Console } from "console";
@@ -49,8 +54,8 @@ export const runCI = async (req: Request, res: Response) => {
     jobTimestamp,
   });
   const logger = new Console({
-    stdout: fs.createWriteStream(`${loggingDirectory}/out.log`),
-    stderr: fs.createWriteStream(`${loggingDirectory}/err.log`),
+    stdout: fs.createWriteStream(`${loggingDirectory}/${OUTPUT_LOG_FILE_NAME}`),
+    stderr: fs.createWriteStream(`${loggingDirectory}/${ERROR_LOG_FILE_NAME}`),
   });
 
   // Set commit status to pending

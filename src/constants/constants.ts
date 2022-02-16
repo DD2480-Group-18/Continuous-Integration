@@ -5,3 +5,5 @@ export const RESULTS_FILE_DIR = "ci-results";
 
 export const CI_FILE_NAME = ".ci.json";
 export const METADATA_FILE_NAME = "meta.json";
+export const OUTPUT_LOG_FILE_NAME = "out.log";
+export const ERROR_LOG_FILE_NAME = "err.log";
