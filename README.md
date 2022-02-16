@@ -25,17 +25,26 @@ The notification system works by utilizing GitHub's webhook mechanism on reposit
 
 This reporting mechanism is tested using unit tests that run against a specific commit on a specific branch of this project.
 
+#### CI-JOE installs your dependencies steps and reports back
+
+Dependency installation is triggered using the webhook mechanism, in which the steps defined in your `.ci.json` file in the `dependencies` property/list are run on the CI server. Everything you can do in a bash shell is possible to do here. `compile` is a list in which you can specify multiple dependency-installation-related commands in the order you want them executed.
+
+The dependency installation mechanism is tested in integration tests where broken projects and functional projects are tested to see if the CI results report back the expected result.
+The branch used for negative and positive compilation testing is `f/dependencies-broken` as well as `t/working-project`.
+
 #### CI-JOE runs your compilation steps and reports back
 
 Compilation is triggered using the webhook mechanism, in which the steps defined in your `.ci.json` file in the `compile` property/list are run on the CI server. Everything you can do in a bash shell is possible to do here. `compile` is a list in which you can specify multiple compilation-related commands in the order you want them executed.
 
 The compilation mechanism is tested in integration tests where broken projects and functional projects are tested to see if the CI results report back the expected result.
+The branch used for negative and positive compilation testing is `f/compilation-broken` as well as `t/working-project`.
 
 #### CI-JOE runs your testing steps and reports back
 
 Testing is triggered using the webhook mechanism, in which the steps defined in your `.ci.json` file in the `test` property/list are run on the CI server. Everything you can do in a bash shell is possible to do here. `test` is a list in which you can specify multiple testing-related commands in the order you want them executed.
 
 The testing mechanism is tested in integration tests where projects with failing tests and projects with passing tests are tested to see if the CI results report back the expected result.
+The branch used for negative and positive "test"-testing is `f/testing-broken` as well as `t/working-project`.
 
 ## 1.3 How to use it
 
