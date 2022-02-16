@@ -9,7 +9,8 @@
     "watch": "npx tsc -w",
     "start": "node --experimental-vm-modules --experimental-specifier-resolution=node dist/index.js",
     "test": "npx --experimental-vm-modules --experimental-specifier-resolution=node jest --silent",
-    "clean": "rm -r ./dist",
+    "clean": "rm -rf ./dist",
+    "clean-jobs": "rm -rf ./ci-jobs ./ci-results",
     "fresh-start": "npm run clean && npm run build && npm start"
   },
   "repository": {
