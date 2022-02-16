@@ -36,7 +36,10 @@ app.post("/run", async (req: Request, res: Response) => {
   }: WebhookBody = req.body;
 
   // make a new logger
-  const loggingDirectory = `${RESULTS_FILE_DIR}/${ownerName}/${repositoryName}/${branchRef}`;
+  const loggingDirectory = path.join(
+    getRootDirectory(),
+    `${RESULTS_FILE_DIR}/${ownerName}/${repositoryName}/${branchRef}`
+  );
   createDirectory(loggingDirectory);
   const logger = new Console({
     stdout: fs.createWriteStream(`${loggingDirectory}/out.log`),
@@ -104,7 +107,7 @@ app.post("/run", async (req: Request, res: Response) => {
   await execute(rmCommand, { encoding: "utf8" });
 
   // Set CI commit status to "success"
-  await setSuccessCommitStatus(jobDirectory);
+  await setSuccessCommitStatus(commitStatusURL);
 });
 
 app.listen(PORT, function () {
