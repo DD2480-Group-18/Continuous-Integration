@@ -120,9 +120,11 @@ These steps should be related to testing of the project.
 
 ## 1.4 Statement of contributions
 
-Adam: Everything docker-related, README.md, pair programming with Zino.
+Adam: Everything README.md, pair programming with Zino, endpoint test (did not finish), logging. 
 
 Zino: Most of the CI server implementation. Also commit check handling, endpoints with views, file handling, documentation and most tests.
+
+Oskar: ci-tests, pair programming with Adam.
 
 #### Something we are proud of
 
