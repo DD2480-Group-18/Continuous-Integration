@@ -14,7 +14,6 @@ import {
 import {
   JOB_FILE_DIR,
   OUTPUT_LOG_FILE_NAME,
-  ERROR_LOG_FILE_NAME,
   RESULTS_FILE_DIR,
 } from "../constants/constants";
 import fs from "fs";
@@ -41,21 +40,26 @@ export const runCI = async (req: Request, res: Response) => {
 
   const jobTimestamp = new Date(Date.now()).toISOString();
 
-  // make a new logger
+  // create a logger that logs to the job logging directory
   const loggingDirectory = path.join(
     getRootDirectory(),
     `${RESULTS_FILE_DIR}/${ownerName}/${repositoryName}/${commitHash}`
   );
   await createDirectory(loggingDirectory);
+  const outputFileStream = fs.createWriteStream(
+    `${loggingDirectory}/${OUTPUT_LOG_FILE_NAME}`
+  );
+  const logger = new Console({
+    stdout: outputFileStream,
+    stderr: outputFileStream,
+  });
+
+  // create job metadata in logging directory
   await createJobMetaData(loggingDirectory, {
     username,
     commitURL,
     commitTimestamp,
     jobTimestamp,
-  });
-  const logger = new Console({
-    stdout: fs.createWriteStream(`${loggingDirectory}/${OUTPUT_LOG_FILE_NAME}`),
-    stderr: fs.createWriteStream(`${loggingDirectory}/${ERROR_LOG_FILE_NAME}`),
   });
 
   // Set commit status to pending
@@ -106,6 +110,7 @@ export const runCI = async (req: Request, res: Response) => {
       logger
     );
   }
+
   // run testing steps
   for (const cmd of test) {
     await execute(

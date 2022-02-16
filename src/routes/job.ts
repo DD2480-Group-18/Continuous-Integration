@@ -11,6 +11,9 @@ import path from "path";
 
 const CI_RESULTS_DIRECTORY = path.join(getRootDirectory(), RESULTS_FILE_DIR);
 
+/**
+ * Shows details of a previously ran CI job at /job/<owner>/<repository>/<commit-sha>
+ */
 export const showJob = async (req: Request, res: Response) => {
   const organizationName = req.params.organization;
   const repositoryName = req.params.repository;

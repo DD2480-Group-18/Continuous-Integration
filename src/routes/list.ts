@@ -8,6 +8,9 @@ import path from "path";
 
 const CI_RESULTS_DIRECTORY = path.join(getRootDirectory(), RESULTS_FILE_DIR);
 
+/**
+ * Lists a history of ran CI jobs at /list
+ */
 export const listJobs = async (_: Request, res: Response) => {
   const { children: jobOrganizations } = dirTree(CI_RESULTS_DIRECTORY, {
     normalizePath: true,
@@ -70,7 +73,7 @@ export const listJobs = async (_: Request, res: Response) => {
     })
     .sort(
       (a, b) =>
-        new Date(a.jobTimestamp).getTime() - new Date(b.jobTimestamp).getTime()
+        new Date(b.jobTimestamp).getTime() - new Date(a.jobTimestamp).getTime()
     );
 
   res.render("list", { jobs: jobsList });
