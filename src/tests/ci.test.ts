@@ -1,7 +1,11 @@
 import path from "path";
 import fs from "fs";
 import { JOB_FILE_DIR } from "../constants/constants";
-import { cloneRepository, createDirectory } from "../pkg/ci";
+import {
+  cloneRepository,
+  createDirectory,
+  getRepositoryConfig,
+} from "../pkg/ci";
 
 test("createJobDirectory creates the folder structure on the filesystem", async () => {
   const ownerName = "test-owner";
@@ -68,4 +72,39 @@ test("cloneRepository clones repositories to the target directory", async () => 
 
   // clear test directory
   fs.rmSync(intoDirectory, { recursive: true, force: true });
+});
+
+//RepositoryConfig test
+test("Respositry configuration test", async () => {
+  const ownerName = "DD2480-Group-18";
+  const repositoryName = "Continuous-Integration";
+  const commitHash = "abc123";
+  const jobDirectory = path.join(
+    __dirname,
+    "../../",
+    `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
+  );
+
+  fs.rmSync(jobDirectory, { recursive: true, force: true });
+
+  await createDirectory(jobDirectory);
+
+  const obj = {
+    dependencies: "cmd1",
+    compile: "cmd2",
+    test: "cmd3",
+  };
+  const data = JSON.stringify(obj);
+
+  fs.writeFile(path.join(jobDirectory, "test.config.json"), data, (err) => {
+    if (err) throw err;
+  });
+  const config = await getRepositoryConfig(jobDirectory, "test.config.json");
+
+  expect(config.dependencies).toBe("cmd1");
+  expect(config.compile).toBe("cmd2");
+  expect(config.test).toBe("cmd3");
+
+  // clear test directory
+  fs.rmSync(jobDirectory, { recursive: true, force: true });
 });

@@ -60,9 +60,10 @@ export const cloneRepository = async (
  * @returns the CI config file, or null if it did not exist
  */
 export const getRepositoryConfig = async (
-  jobDirectory: string
+  jobDirectory: string,
+  configFileName = CI_FILE_NAME
 ): Promise<CIConfig> => {
-  const configFilePath = path.join(jobDirectory, CI_FILE_NAME);
+  const configFilePath = path.join(jobDirectory, configFileName);
   const content = await readFile(configFilePath, "utf-8");
   if (!content) throw new Error("Could not read config file");
   return JSON.parse(content.toString());
