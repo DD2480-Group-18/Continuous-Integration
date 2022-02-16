@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "npx tsc -w",
-    "start": "node --experimental-vm-modules --experimental-specifier-resolution=node dist/src/index.js",
+    "start": "node --experimental-vm-modules --experimental-specifier-resolution=node dist/index.js",
     "test": "npx --experimental-vm-modules --experimental-specifier-resolution=node jest --silent",
     "clean": "rm -r ./dist",
     "fresh-start": "npm run clean && npm run build && npm start"

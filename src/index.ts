@@ -38,9 +38,11 @@ app.post("/run", async (req: Request, res: Response) => {
   // make a new logger
   const loggingDirectory = path.join(
     getRootDirectory(),
-    `${RESULTS_FILE_DIR}/${ownerName}/${repositoryName}/${branchRef}`
+    `${RESULTS_FILE_DIR}/${ownerName}/${repositoryName}/${branchRef.substring(
+      "refs/heads/".length
+    )}/${commitHash}`
   );
-  createDirectory(loggingDirectory);
+  await createDirectory(loggingDirectory);
   const logger = new Console({
     stdout: fs.createWriteStream(`${loggingDirectory}/out.log`),
     stderr: fs.createWriteStream(`${loggingDirectory}/err.log`),
@@ -59,8 +61,12 @@ app.post("/run", async (req: Request, res: Response) => {
     getRootDirectory(),
     `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
   );
-  createDirectory(jobDirectory);
-  cloneRepository(sshURL, branchRef, jobDirectory);
+  await createDirectory(jobDirectory);
+  await cloneRepository(
+    sshURL,
+    branchRef,
+    `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
+  );
 
   // read .ci.json configuration file and run the user-defined steps
   const { dependencies, compile, test } = await getRepositoryConfig(

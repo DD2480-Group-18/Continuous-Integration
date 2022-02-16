@@ -16,23 +16,20 @@ export const execute = async (
   const child = exec(cmd, options, (err, stdout, stderr) => {
     if (err) {
       if (logger) {
-        logger.error(`error: ${err}`);
+        logger.error(`error: ${err.message}`);
       }
-      console.error(`error: ${err}`);
+      console.error(`error: ${err.message}`);
       throw err;
     }
     if (logger) {
-      logger.log(`stdout: ${stdout}`);
-      logger.log(`stderr: ${stderr}`);
+      if (stdout) logger.log(`stdout: ${stdout}`);
+      if (stderr) logger.log(`stderr: ${stderr}`);
     }
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
+    if (stdout) console.log(`stdout: ${stdout}`);
+    if (stderr) console.log(`stderr: ${stderr}`);
   });
 
   await new Promise((resolve) => {
-    child.on("close", () => {
-      console.log(`done: ${cmd}`);
-      return resolve;
-    });
+    child.on("close", resolve);
   });
 };
