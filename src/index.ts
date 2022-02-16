@@ -1,19 +1,24 @@
 import path from "path";
 import { getRootDirectory } from "./pkg/file";
 import {
-  createJobDirectory,
+  createDirectory,
   cloneRepository,
   getRepositoryConfig,
 } from "./pkg/ci";
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import { WebhookBody } from "./types/types";
-import { setSuccessCommitStatus } from "./pkg/commit_check";
 import {
   getCommitStatusUpdateURL,
   setPendingCommitStatus,
+  setSuccessCommitStatus,
 } from "./pkg/commit_check";
-import { PORT, JOB_FILE_DIR } from "./constants/constants";
+import { PORT, JOB_FILE_DIR, RESULTS_FILE_DIR } from "./constants/constants";
+import fs from "fs";
+import { execute } from "./pkg/io";
+import { Console } from "console";
+import path from "path";
+import { getRootDirectory } from "./pkg/file";
 
 // initialize app
 const app = express();
@@ -32,46 +37,118 @@ app.post("/run", async (req: Request, res: Response) => {
     ref: branchRef,
   }: WebhookBody = req.body;
 
+  // make a new logger
+  const loggingDirectory = path.join(
+    getRootDirectory(),
+    `${RESULTS_FILE_DIR}/${ownerName}/${repositoryName}/${branchRef.substring(
+      "refs/heads/".length
+    )}/${commitHash}`
+  );
+  await createDirectory(loggingDirectory);
+  const logger = new Console({
+    stdout: fs.createWriteStream(`${loggingDirectory}/out.log`),
+    stderr: fs.createWriteStream(`${loggingDirectory}/err.log`),
+  });
+
+  // Set commit status to pending
   const commitStatusURL = getCommitStatusUpdateURL(
     ownerName,
     repositoryName,
     commitHash
   );
+  
+  await setPendingCommitStatus(commitStatusURL);
+
+  // Clone repository
   const jobDirectory = path.join(
     getRootDirectory(),
     `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
   );
-
-  // Set CI commit status to "pending"
-  await setPendingCommitStatus(commitStatusURL);
-
-  createJobDirectory(jobDirectory);
-  cloneRepository(sshURL, branchRef, jobDirectory);
+  await createDirectory(jobDirectory);
+  await cloneRepository(
+    sshURL,
+    branchRef,
+    `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
+  );
 
   // read .ci.json configuration file and run the user-defined steps
-  const ciConfig = await getRepositoryConfig(jobDirectory);
+  const { dependencies, compile, test } = await getRepositoryConfig(
+    jobDirectory
+  );
 
-  /*
+  var startTime = performance.now();
+
   // run dependency installation steps
-  dependencies.forEach((cmd) =>
-    executeAndLogCommand(cmd, CMD_EXEC_OPTIONS, absoluteJobDirectory)
-  );
-  // run compilation steps
-  compile.forEach((cmd) =>
-    executeAndLogCommand(cmd, CMD_EXEC_OPTIONS, absoluteJobDirectory)
-  );
-  // run testing steps
-  test.forEach((cmd) =>
-    executeAndLogCommand(cmd, CMD_EXEC_OPTIONS, absoluteJobDirectory)
-  );
+  for (const cmd of dependencies) {
+    await execute(
+      cmd,
+      {
+        encoding: "utf8",
+        cwd: jobDirectory,
+      },
+      logger
+    );
+  }
 
-  // cleanup build files
-  const rmCommand = `rm -rf "${absoluteJobDirectory}"`;
-  executeAndLogCommand(rmCommand, CMD_EXEC_OPTIONS);
-  */
+  var setupTime = performance.now();
+
+  // run compilation steps
+  for (const cmd of compile) {
+    await execute(
+      cmd,
+      {
+        encoding: "utf8",
+        cwd: jobDirectory,
+      },
+      logger
+    );
+  }
+
+  var compileTime = performance.now();
+
+  // run testing steps
+  for (const cmd of test) {
+    await execute(
+      cmd,
+      {
+        encoding: "utf8",
+        cwd: jobDirectory,
+      },
+      logger
+    );
+  }
+
+  var testTime = performance.now();
 
   // Set CI commit status to "success"
   await setSuccessCommitStatus(commitStatusURL);
+
+  // cleanup build files
+  const rmCommand = `rm -rf "${jobDirectory}"`;
+  await execute(rmCommand, { encoding: "utf8" });
+
+  // Write CI run information to meta.json
+  fs.writeFile(
+    `${loggingDirectory}/meta.json`,
+    JSON.stringify({
+      result: "success",
+      info: {
+        owner: ownerName,
+        repo: repositoryName,
+        sha: commitHash,
+      },
+      time: {
+        setup: setupTime - startTime,
+        compile: compileTime - setupTime,
+        test: testTime - compileTime,
+      },
+    }),
+    (err) => {
+      if (err) throw err;
+    }
+  );
+
+  console.log("Done! ✅");
 });
 
 app.listen(PORT, function () {

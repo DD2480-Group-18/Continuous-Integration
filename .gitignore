@@ -4,3 +4,5 @@ example-payload.json
 .DS_Store
 .env
 ci-jobs
+.vscode
+ci-results
