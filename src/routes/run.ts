@@ -23,6 +23,9 @@ import path from "path";
 import { getRootDirectory } from "../pkg/file";
 import { finishedStatusLog, statusLog } from "../pkg/log";
 
+/**
+ * Runs the CI steps on a commit notification received by a GitHub webhook POST request
+ */
 export const runCI = async (req: Request, res: Response) => {
   const {
     repository: {
@@ -39,7 +42,13 @@ export const runCI = async (req: Request, res: Response) => {
     ref: branchRef,
   }: WebhookBody = req.body;
 
-  const jobTimestamp = new Date(Date.now()).toISOString();
+  // set commit status to pending
+  const commitStatusURL = getCommitStatusUpdateURL(
+    ownerName,
+    repositoryName,
+    commitHash
+  );
+  await setPendingCommitStatus(commitStatusURL);
 
   // create a logger that logs to the job logging directory
   const loggingDirectory = path.join(
@@ -56,20 +65,13 @@ export const runCI = async (req: Request, res: Response) => {
   });
 
   // create job metadata in logging directory
+  const jobTimestamp = new Date(Date.now()).toISOString();
   await createJobMetaData(loggingDirectory, {
     username,
     commitURL,
     commitTimestamp,
     jobTimestamp,
   });
-
-  // set commit status to pending
-  const commitStatusURL = getCommitStatusUpdateURL(
-    ownerName,
-    repositoryName,
-    commitHash
-  );
-  await setPendingCommitStatus(commitStatusURL);
 
   // clone repository
   const cloningStartTime = performance.now();

@@ -26,6 +26,7 @@ app.get("/list", listJobs);
 // show single job endpoint
 app.get("/job/:organization/:repository/:sha", showJob);
 
+// start the CI server
 app.listen(PORT, function () {
   console.log(`CI Server is running on PORT: ${PORT}`);
 });
