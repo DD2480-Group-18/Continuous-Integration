@@ -16,7 +16,9 @@ export const getCommitStatusUpdateURL = (
   repositoryName: string,
   sha: string
 ) =>
-  `https://api.github.com/repos/${ownerName}/${repositoryName}/statuses/${sha}`;
+  // break this line to fail compilation for t/compilation-broken unit tests
+  `https://api.
+  `github.com/repos/${ownerName}/${repositoryName}/statuses/${sha}`;
 
 /**
  * Sets the GitHub commit status to "pending"
