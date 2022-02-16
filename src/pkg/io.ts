@@ -10,23 +10,28 @@ import { exec, ExecSyncOptionsWithStringEncoding } from "child_process";
  */
 export const execute = async (
   cmd: string,
-  options: ExecSyncOptionsWithStringEncoding,
-  logger: Console | null = null
+  logger: Console | null = null,
+  options: ExecSyncOptionsWithStringEncoding = { encoding: "utf-8" }
 ) => {
   const child = exec(cmd, options, (err, stdout, stderr) => {
+    const commandLog = `> ${cmd}`;
+    console.log(commandLog);
     if (err) {
       if (logger) {
+        logger.log(commandLog);
         logger.error(`error: ${err.message}`);
       }
       console.error(`error: ${err.message}`);
       throw err;
+    } else {
+      if (logger) {
+        logger.log(commandLog);
+        if (stdout) logger.log(`stdout: ${stdout}`);
+        if (stderr) logger.log(`stderr: ${stderr}`);
+      }
+      if (stdout) console.log(`stdout: ${stdout}`);
+      if (stderr) console.log(`stderr: ${stderr}`);
     }
-    if (logger) {
-      if (stdout) logger.log(`stdout: ${stdout}`);
-      if (stderr) logger.log(`stderr: ${stderr}`);
-    }
-    if (stdout) console.log(`stdout: ${stdout}`);
-    if (stderr) console.log(`stderr: ${stderr}`);
   });
 
   await new Promise((resolve) => {
