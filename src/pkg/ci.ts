@@ -12,9 +12,7 @@ import { execute } from "./io";
  * @param dir the relative path of the directory to create
  */
 export const createDirectory = async (dir: string) => {
-  await execute(`mkdir -p "${dir}"`, {
-    encoding: "utf8",
-  });
+  await execute(`mkdir -p "${dir}"`);
 };
 
 /**
@@ -49,7 +47,7 @@ export const cloneRepository = async (
 ) => {
   const branch = branchRef.substring("refs/heads/".length);
   const cloneCommand = `git clone ${sshURL} . --branch ${branch}`;
-  await execute(cloneCommand, {
+  await execute(cloneCommand, null, {
     encoding: "utf8",
     cwd: intoDirectory,
   });

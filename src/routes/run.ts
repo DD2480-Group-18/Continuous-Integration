@@ -62,7 +62,7 @@ export const runCI = async (req: Request, res: Response) => {
     jobTimestamp,
   });
 
-  // Set commit status to pending
+  // set commit status to pending
   const commitStatusURL = getCommitStatusUpdateURL(
     ownerName,
     repositoryName,
@@ -70,7 +70,8 @@ export const runCI = async (req: Request, res: Response) => {
   );
   await setPendingCommitStatus(commitStatusURL);
 
-  // Clone repository
+  // clone repository
+  await execute("--- ⬇️ CLONING REPOSITORY ⬇️ ---", logger);
   const jobDirectory = path.join(
     getRootDirectory(),
     `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
@@ -81,52 +82,61 @@ export const runCI = async (req: Request, res: Response) => {
     branchRef,
     `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
   );
+  await execute("--- ✅ DONE CLONING REPOSITORY ✅ ---\n", logger);
 
   // read .ci.json configuration file and run the user-defined steps
   const { dependencies, compile, test } = await getRepositoryConfig(
     jobDirectory
   );
 
+  const ciStartTime = performance.now();
+
   // run dependency installation steps
+  await execute("--- 📦 INSTALLING DEPENDENCIES 📦 ---", logger);
   for (const cmd of dependencies) {
-    await execute(
-      cmd,
-      {
-        encoding: "utf8",
-        cwd: jobDirectory,
-      },
-      logger
-    );
+    await execute(cmd, logger, {
+      encoding: "utf8",
+      cwd: jobDirectory,
+    });
   }
+  await timedFinishLog("DONE INSTALLING DEPENDENCIES", ciStartTime, logger);
 
   // run compilation steps
+  await execute("--- ⚙️ COMPILING PROJECT ⚙️ ---", logger);
   for (const cmd of compile) {
-    await execute(
-      cmd,
-      {
-        encoding: "utf8",
-        cwd: jobDirectory,
-      },
-      logger
-    );
+    await execute(cmd, logger, {
+      encoding: "utf8",
+      cwd: jobDirectory,
+    });
   }
+  await timedFinishLog("DONE COMPILING PROJECT", ciStartTime, logger);
 
   // run testing steps
+  await execute("--- 🧪 RUNNING TESTS 🧪 ---", logger);
   for (const cmd of test) {
-    await execute(
-      cmd,
-      {
-        encoding: "utf8",
-        cwd: jobDirectory,
-      },
-      logger
-    );
+    await execute(cmd, logger, {
+      encoding: "utf8",
+      cwd: jobDirectory,
+    });
   }
+  await timedFinishLog("DONE RUNNING TESTS", ciStartTime, logger);
 
   // cleanup build files
   const rmCommand = `rm -rf "${jobDirectory}"`;
-  await execute(rmCommand, { encoding: "utf8" });
+  await execute(rmCommand);
+
+  //
+  await execute("--- ✅ All CI steps completed successfully ✅  ---\n", logger);
 
   // Set CI commit status to "success"
   await setSuccessCommitStatus(commitStatusURL);
+};
+
+const timedFinishLog = async (
+  message: string,
+  startTime: number,
+  logger: Console
+) => {
+  const s = (performance.now() - startTime) / 1000;
+  await execute(`--- ✅ ${message} in ${s} seconds ✅ ---\n`, logger);
 };
