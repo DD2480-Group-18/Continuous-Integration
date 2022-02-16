@@ -5,6 +5,9 @@ import {
   setSuccessCommitStatus,
 } from "../pkg/commit_check";
 
+const TIMEOUT = 10 * 750; // 7.5s timeout
+jest.setTimeout(TIMEOUT);
+
 test("getCommitStatusUpdateURL creates URLs correctly", () => {
   expect(getCommitStatusUpdateURL("ZinoKader", "portal", "123")).toBe(
     "https://api.github.com/repos/ZinoKader/portal/statuses/123"

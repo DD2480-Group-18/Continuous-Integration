@@ -240,6 +240,8 @@ const runCISteps = async ({
     await execute(cmd, logger, {
       encoding: "utf8",
       cwd: jobDirectory,
+    }).catch((err) => {
+      throw err;
     });
   }
   finishedStatusLog(`DONE ${message}`, "✅", startTime, logger);
