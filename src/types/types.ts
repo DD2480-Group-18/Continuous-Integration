@@ -8,6 +8,13 @@ export type WebhookBody = {
   };
   after: string;
   ref: string;
+  head_commit: {
+    timestamp: string;
+    url: string;
+    author: {
+      username: string;
+    };
+  };
 };
 
 export type CIConfig = {
@@ -21,4 +28,11 @@ export type CommitStatusUpdate = {
   description?: string;
   target_url?: string;
   context?: string;
+};
+
+export type JobMetadata = {
+  username: string;
+  commitURL: string;
+  commitTimestamp: string;
+  jobTimestamp: string;
 };

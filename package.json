@@ -24,8 +24,10 @@
   "homepage": "https://github.com/DD2480-Group-18/Continuous-Integration#readme",
   "dependencies": {
     "axios": "^0.25.0",
+    "directory-tree": "^3.2.1",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
+    "pug": "^3.0.2",
     "ts-node": "^10.5.0"
   },
   "devDependencies": {
