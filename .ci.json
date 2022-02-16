@@ -8,5 +8,5 @@
   "test": [ 
     "access_token=ghp_ && access_token+=IzqqzOvgbYjjCA0GdFV8tj6lNrbQyc0YR6ZP && GITHUB_CI_ACCESS_TOKEN=$access_token npm test"
   ]
-}
+} 
  
