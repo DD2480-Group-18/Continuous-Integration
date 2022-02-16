@@ -73,6 +73,8 @@ app.post("/run", async (req: Request, res: Response) => {
     jobDirectory
   );
 
+  var startTime = performance.now();
+
   // run dependency installation steps
   for (const cmd of dependencies) {
     await execute(
@@ -85,6 +87,8 @@ app.post("/run", async (req: Request, res: Response) => {
     );
   }
 
+  var setupTime = performance.now();
+
   // run compilation steps
   for (const cmd of compile) {
     await execute(
@@ -96,6 +100,9 @@ app.post("/run", async (req: Request, res: Response) => {
       logger
     );
   }
+
+  var compileTime = performance.now();
+
   // run testing steps
   for (const cmd of test) {
     await execute(
@@ -108,12 +115,37 @@ app.post("/run", async (req: Request, res: Response) => {
     );
   }
 
+  var testTime = performance.now();
+
+  // Set CI commit status to "success"
+  await setSuccessCommitStatus(commitStatusURL);
+
   // cleanup build files
   const rmCommand = `rm -rf "${jobDirectory}"`;
   await execute(rmCommand, { encoding: "utf8" });
 
-  // Set CI commit status to "success"
-  await setSuccessCommitStatus(commitStatusURL);
+  // Write CI run information to meta.json
+  fs.writeFile(
+    `${loggingDirectory}/meta.json`,
+    JSON.stringify({
+      result: "success",
+      info: {
+        owner: ownerName,
+        repo: repositoryName,
+        sha: commitHash,
+      },
+      time: {
+        setup: setupTime - startTime,
+        compile: compileTime - setupTime,
+        test: testTime - compileTime,
+      },
+    }),
+    (err) => {
+      if (err) throw err;
+    }
+  );
+
+  console.log("Done! ✅");
 });
 
 app.listen(PORT, function () {
