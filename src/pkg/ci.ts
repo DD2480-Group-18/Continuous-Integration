@@ -1,7 +1,9 @@
+import fs from "fs";
+import { JobMetadata } from "./../types/types";
 import { CIConfig } from "../types/types";
 import { readFile } from "fs/promises";
 import path from "path";
-import { CI_FILE_NAME } from "../constants/constants";
+import { CI_FILE_NAME, METADATA_FILE_NAME } from "../constants/constants";
 import { execute } from "./io";
 
 /**
@@ -12,6 +14,24 @@ import { execute } from "./io";
 export const createDirectory = async (dir: string) => {
   await execute(`mkdir -p "${dir}"`, {
     encoding: "utf8",
+  });
+};
+
+/**
+ * Creates and populates a metadata file in a CI result folder
+ *
+ * @param resultDirectory the CI result directory to populate with metadata
+ */
+export const createJobMetaData = async (
+  resultDirectory: string,
+  metadata: JobMetadata
+) => {
+  const metadataFilePath = path.join(resultDirectory, METADATA_FILE_NAME);
+  await fs.writeFile(metadataFilePath, JSON.stringify(metadata), (err) => {
+    if (err) {
+      console.error(`Error creating job metadata: ${err.message}`);
+      throw err;
+    }
   });
 };
 

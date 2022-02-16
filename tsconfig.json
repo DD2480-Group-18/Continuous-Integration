@@ -1,7 +1,9 @@
 {
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "ci-jobs",
+    "ci-results"
   ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */

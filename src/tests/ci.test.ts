@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
 import { JOB_FILE_DIR } from "../constants/constants";
-import { cloneRepository, createJobDirectory } from "../pkg/ci";
+import { cloneRepository, createDirectory } from "../pkg/ci";
 
-test("createJobDirectory creates the folder structure on the filesystem", () => {
+test("createJobDirectory creates the folder structure on the filesystem", async () => {
   const ownerName = "test-owner";
   const repositoryName = "test-repository";
   const commitHash = "abc123";
@@ -18,7 +18,7 @@ test("createJobDirectory creates the folder structure on the filesystem", () => 
   // clear previous entries of this test directory
   fs.rmSync(jobDirectory, { recursive: true, force: true });
   // create the test directory
-  createJobDirectory(jobDirectory);
+  await createDirectory(jobDirectory);
 
   let exists: boolean;
   try {
@@ -33,7 +33,7 @@ test("createJobDirectory creates the folder structure on the filesystem", () => 
   fs.rmSync(jobDirectory, { recursive: true, force: true });
 });
 
-test("cloneRepository clones repositories to the target directory", () => {
+test("cloneRepository clones repositories to the target directory", async () => {
   const sshURL = "git@github.com:DD2480-Group-18/Continuous-Integration.git";
   const branchRef = "refs/heads/master";
   const ownerName = "DD2480-Group-18";
@@ -47,11 +47,14 @@ test("cloneRepository clones repositories to the target directory", () => {
     `${JOB_FILE_DIR}/${ownerName}-${repositoryName}-${commitHash}`
   );
 
+  // clear previous entries of the test directory
+  fs.rmSync(intoDirectory, { recursive: true, force: true });
+
   // create the test directory to clone the repository into
-  createJobDirectory(intoDirectory);
+  await createDirectory(intoDirectory);
 
   // create a clone of the repository in the test directory
-  cloneRepository(sshURL, branchRef, intoDirectory);
+  await cloneRepository(sshURL, branchRef, intoDirectory);
 
   let exists: boolean;
   try {
