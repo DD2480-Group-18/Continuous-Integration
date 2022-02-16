@@ -146,3 +146,19 @@ What speaks for being in formed:
 To be able to fully identify as _formed_, the team members would need to primarily take on more personal responsibility. 
 Moreover, each team member needs to commit to working as defined, that is, to do approximately equal amounts of work.
 Other than these points, the unfulfilled points in "what speaks for being in seeded" need to be fully resolved.
+
+## 1.6 P+ features description
+
+### History of past builds
+
+This is documented throughout the project documentation, but in short it can be viewed at `/list` when running the CI server.
+
+### Most commits are linked to an issue describing the feature/commit
+
+Yes, we have used git-flow to work with git, and have made sure to almost always use pull requests with clearly linked issues.
+To merge into master, we squash commits and also link to the issue in the commit comment, 
+as well as listing the changes from the individual commits that make up the squashed commit.
+
+### The group is creative and proactive
+
+See the statement of contributions for the "Something we are proud of" section
