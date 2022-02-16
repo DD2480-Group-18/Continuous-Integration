@@ -133,7 +133,9 @@ export const runCI = async (req: Request, res: Response) => {
   } catch (e) {
     logger.log("CI-JOE failed: ", e);
     await setFailureCommitStatus(commitStatusURL);
+    return res.sendStatus(500);
   }
+  return res.sendStatus(200);
 };
 
 type RepositoryInfo = {
@@ -238,6 +240,8 @@ const runCISteps = async ({
     await execute(cmd, logger, {
       encoding: "utf8",
       cwd: jobDirectory,
+    }).catch((err) => {
+      throw err;
     });
   }
   finishedStatusLog(`DONE ${message}`, "✅", startTime, logger);

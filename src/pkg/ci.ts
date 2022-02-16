@@ -12,7 +12,9 @@ import { execute } from "./io";
  * @param dir the relative path of the directory to create
  */
 export const createDirectory = async (dir: string) => {
-  await execute(`mkdir -p "${dir}"`);
+  await execute(`mkdir -p "${dir}"`).catch((err) => {
+    throw err;
+  });
 };
 
 /**
@@ -50,6 +52,8 @@ export const cloneRepository = async (
   await execute(cloneCommand, null, {
     encoding: "utf8",
     cwd: intoDirectory,
+  }).catch((err) => {
+    throw err;
   });
 };
 

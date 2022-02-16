@@ -2,13 +2,15 @@
 
 ## 1.1 What is it?
 
-CI-JOE is a state-of-the-art CI build server for GitHub. 
+CI-JOE is a state-of-the-art CI build server for GitHub.
 Using the GitHub WebHooks integrations CI-JOE makes sure that all code published to a repository is functional and sound.
 
 ## 1.2 How it works
+
 #### CI-JOE creates snapshots of the commits made to the repository in a folder structure on the filesystem where CI-JOE is run.
 
 The relevant folders are:
+
 ```
 ├── ci-jobs
 ├── ci-results
@@ -23,17 +25,26 @@ The notification system works by utilizing GitHub's webhook mechanism on reposit
 
 This reporting mechanism is tested using unit tests that run against a specific commit on a specific branch of this project.
 
+#### CI-JOE installs your dependencies steps and reports back
+
+Dependency installation is triggered using the webhook mechanism, in which the steps defined in your `.ci.json` file in the `dependencies` property/list are run on the CI server. Everything you can do in a bash shell is possible to do here. `compile` is a list in which you can specify multiple dependency-installation-related commands in the order you want them executed.
+
+The dependency installation mechanism is tested in integration tests where broken projects and functional projects are tested to see if the CI results report back the expected result.
+The branch used for negative and positive compilation testing is `f/dependencies-broken` as well as `t/working-project`.
+
 #### CI-JOE runs your compilation steps and reports back
 
 Compilation is triggered using the webhook mechanism, in which the steps defined in your `.ci.json` file in the `compile` property/list are run on the CI server. Everything you can do in a bash shell is possible to do here. `compile` is a list in which you can specify multiple compilation-related commands in the order you want them executed.
 
 The compilation mechanism is tested in integration tests where broken projects and functional projects are tested to see if the CI results report back the expected result.
+The branch used for negative and positive compilation testing is `f/compilation-broken` as well as `t/working-project`.
 
 #### CI-JOE runs your testing steps and reports back
 
 Testing is triggered using the webhook mechanism, in which the steps defined in your `.ci.json` file in the `test` property/list are run on the CI server. Everything you can do in a bash shell is possible to do here. `test` is a list in which you can specify multiple testing-related commands in the order you want them executed.
 
 The testing mechanism is tested in integration tests where projects with failing tests and projects with passing tests are tested to see if the CI results report back the expected result.
+The branch used for negative and positive "test"-testing is `f/testing-broken` as well as `t/working-project`.
 
 ## 1.3 How to use it
 
@@ -57,11 +68,12 @@ The testing mechanism is tested in integration tests where projects with failing
 ### Setup your GitHub CI token
 
 For CI-JOE to have access to your repository, you need to setup the environment variable `GITHUB_CI_ACCESS_TOKEN` in .env or run the executable with the same environment variable set.
-The access token only needs the `repo:status` permission. 
+The access token only needs the `repo:status` permission.
 
 You can create and retrieve your CI token [here](https://github.com/settings/tokens).
 
 ##### Create a `.env` file in the top project directory with the following content:
+
 ```
 // .env
 
@@ -75,7 +87,7 @@ The available fields are `dependencies`, `compile` and `test` and are all arrays
 
 ### **Important!**
 
-> __Notice that .ci.json contains a hack to include the GitHub CI access token. This is required in order for the tests on the cloned repository to be run correctly (as they require the access token).__
+> **Notice that .ci.json contains a hack to include the GitHub CI access token. This is required in order for the tests on the cloned repository to be run correctly (as they require the access token).**
 
 #### `dependencies`
 
@@ -83,7 +95,7 @@ These steps will be run first and as the name indicates, will typically be insta
 
 #### `compile`
 
-These steps are run iff. the steps in `dependencies` have all finished without errors. 
+These steps are run iff. the steps in `dependencies` have all finished without errors.
 These steps should be related to the compilation of the project.
 
 #### `test`
@@ -102,7 +114,7 @@ These steps should be related to testing of the project.
     "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash", // install NVM
     "nvm install --lts",
     "npm install"
-    ],
+  ],
   "compile": ["npm run build"],
   "test": ["npm run test"]
 }
@@ -116,13 +128,15 @@ These steps should be related to testing of the project.
 
 3. Build and run the CI server with `npm run build` followed by `npm run start`.
 
-3. Pushing changes onto remote from a local branch will trigger the webhook, which will send a POST request to the CI server. The CI server will pull the changes from that branch, build the latest revision, and try to run the CI steps defined in `.ci.json`.
+4. Pushing changes onto remote from a local branch will trigger the webhook, which will send a POST request to the CI server. The CI server will pull the changes from that branch, build the latest revision, and try to run the CI steps defined in `.ci.json`.
 
 ## 1.4 Statement of contributions
 
-Adam: Everything docker-related, README.md, pair programming with Zino.
+Adam: Everything README.md, pair programming with Zino, endpoint test, logging.
 
 Zino: Most of the CI server implementation. Also commit check handling, endpoints with views, file handling, documentation and most tests.
+
+Oskar: ci-tests, pair programming with Adam.
 
 #### Something we are proud of
 
@@ -133,17 +147,19 @@ We have created our own .ci.json format which we use to run the bash-script step
 Our team is still somewhere between seeded and formed.
 
 What speaks for being in seeded:
-- Group members do not always understand the obligation towards their team members to be available and do their work, therefore the _level of team commitment_ is not clear. 
-- The responsibilities of the team members are outlined, but are not used/applied in practice. 
+
+- Group members do not always understand the obligation towards their team members to be available and do their work, therefore the _level of team commitment_ is not clear.
+- The responsibilities of the team members are outlined, but are not used/applied in practice.
 - The composition of the team is defined (the team was formed by an external part).
 
 What speaks for being in formed:
-- For some members, _individual responsibilities are understood_. 
+
+- For some members, _individual responsibilities are understood_.
 - It is true that _enough team members have been recruited to enable the work to progress_.
 - The team members have met virtually and are beginning to get to know each other (although the entire team has never met at once).
 - Team communication mechanisms have been formed (Discord), although the communication does not always spark a response.
 
-To be able to fully identify as _formed_, the team members would need to primarily take on more personal responsibility. 
+To be able to fully identify as _formed_, the team members would need to primarily take on more personal responsibility.
 Moreover, each team member needs to commit to working as defined, that is, to do approximately equal amounts of work.
 Other than these points, the unfulfilled points in "what speaks for being in seeded" need to be fully resolved.
 
@@ -156,7 +172,7 @@ This is documented throughout the project documentation, but in short it can be 
 ### Most commits are linked to an issue describing the feature/commit
 
 Yes, we have used git-flow to work with git, and have made sure to almost always use pull requests with clearly linked issues.
-To merge into master, we squash commits and also link to the issue in the commit comment, 
+To merge into master, we squash commits and also link to the issue in the commit comment,
 as well as listing the changes from the individual commits that make up the squashed commit.
 
 ### The group is creative and proactive

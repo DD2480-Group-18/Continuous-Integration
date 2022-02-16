@@ -1,5 +1,3 @@
-import { EOL } from "os";
-
 /**
  * Logs a formatted message to the specified logger
  *
@@ -29,5 +27,5 @@ export const finishedStatusLog = (
   const s = (performance.now() - startTimeMs) / 1000;
   const m = `${message} in ${s} seconds`;
   statusLog(m, symbol, logger);
-  logger.log(EOL);
+  logger.log();
 };

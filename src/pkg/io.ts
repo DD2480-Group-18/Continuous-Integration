@@ -13,7 +13,7 @@ export const execute = async (
   logger: Console | null = null,
   options: ExecSyncOptionsWithStringEncoding = { encoding: "utf-8" }
 ) => {
-  const child = exec(cmd, options, (err, stdout, stderr) => {
+  const child = await exec(cmd, options, (err, stdout, stderr) => {
     const commandLog = `> ${cmd}`;
     console.log(commandLog);
     if (err) {
@@ -22,7 +22,7 @@ export const execute = async (
         logger.error(`error: ${err.message}`);
       }
       console.error(`error: ${err.message}`);
-      throw err;
+      return;
     } else {
       if (logger) {
         logger.log(commandLog);
@@ -34,7 +34,13 @@ export const execute = async (
     }
   });
 
-  await new Promise((resolve) => {
-    child.on("close", resolve);
+  return new Promise((resolve, reject) => {
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(null);
+      } else {
+        reject(`Command (${cmd}) failed with status code ${code}`);
+      }
+    });
   });
 };
