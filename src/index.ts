@@ -1,3 +1,5 @@
+import path from "path";
+import { getRootDirectory } from "./pkg/file";
 import {
   createDirectory,
   cloneRepository,
@@ -54,6 +56,7 @@ app.post("/run", async (req: Request, res: Response) => {
     repositoryName,
     commitHash
   );
+  
   await setPendingCommitStatus(commitStatusURL);
 
   // Clone repository
